@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lume Messenger — Скачать</title>
+    <link rel="icon" href="./logo.png" type="image/png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --transition-speed: 0.45s;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #080c1e;
+            --bg-secondary: #0e1330;
+            --bg-card: #131842;
+            --bg-card-hover: #181e50;
+            --text-primary: #e8eaf0;
+            --text-secondary: #8b92b0;
+            --text-muted: #555c78;
+            --accent: #e86a2e;
+            --accent-glow: rgba(232, 106, 46, 0.18);
+            --border-color: rgba(255, 255, 255, 0.05);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.25);
+            --overlay: rgba(8, 12, 30, 0.88);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f4f5fa;
+            --bg-secondary: #eaecf5;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8f9fd;
+            --text-primary: #1a1d2e;
+            --text-secondary: #5d6280;
+            --text-muted: #8c90a8;
+            --accent: #d05a20;
+            --accent-glow: rgba(208, 90, 32, 0.12);
+            --border-color: rgba(0, 0, 0, 0.06);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --overlay: rgba(244, 245, 250, 0.92);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+        .icon {
+            width: 20px; height: 20px;
+            stroke: currentColor; fill: none;
+            stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+        .icon-sm { width: 16px; height: 16px; }
+        .icon-lg { width: 24px; height: 24px; }
+        .icon-xl { width: 32px; height: 32px; }
+
+        .bg-grid {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; opacity: 0.03;
+            background-image:
+                linear-gradient(var(--text-muted) 1px, transparent 1px),
+                linear-gradient(90deg, var(--text-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .bg-gradient {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .bg-gradient::before {
+            content: ''; position: absolute;
+            width: 600px; height: 600px;
+            top: -15%; right: -10%;
+            background: radial-gradient(circle, var(--accent-glow), transparent 70%);
+            border-radius: 50%; filter: blur(60px);
+        }
+        .bg-gradient::after {
+            content: ''; position: absolute;
+            width: 400px; height: 400px;
+            bottom: 10%; left: -8%;
+            background: radial-gradient(circle, rgba(61, 90, 241, 0.08), transparent 70%);
+            border-radius: 50%; filter: blur(60px);
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000; padding: 0 32px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--overlay);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .navbar-logo {
+            display: flex; align-items: center;
+            text-decoration: none;
+        }
+
+        .navbar-logo img {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .navbar-right {
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .theme-btn {
+            width: 38px; height: 38px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .btn-nav {
+            padding: 8px 18px; background: var(--accent);
+            border: none; border-radius: 8px; color: #fff;
+            font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 6px; text-decoration: none;
+        }
+        .btn-nav:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        /* ===== HERO ===== */
+        .hero {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 110px 20px 80px;
+        }
+
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; border: 1px solid var(--border-color);
+            border-radius: 40px; font-size: 12px; font-weight: 500;
+            color: var(--text-muted); margin-bottom: 28px;
+            background: var(--bg-card);
+        }
+
+        .status-dot {
+            width: 6px; height: 6px;
+            background: #34c759; border-radius: 50%;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 68px);
+            font-weight: 800; line-height: 1.08;
+            margin-bottom: 20px; letter-spacing: -1.5px;
+        }
+        .hero h1 .accent-text { color: var(--accent); }
+
+        .hero-desc {
+            font-size: clamp(15px, 2vw, 18px);
+            color: var(--text-secondary);
+            max-width: 520px; line-height: 1.65;
+            margin-bottom: 40px;
+        }
+
+        .hero-buttons {
+            display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+        }
+
+        .btn-main {
+            padding: 14px 30px; background: var(--accent);
+            border: none; border-radius: 10px; color: #fff;
+            font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+            text-decoration: none; display: inline-flex;
+            align-items: center; gap: 8px;
+        }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .btn-ghost {
+            padding: 14px 30px; background: transparent;
+            border: 1px solid var(--border-color); border-radius: 10px;
+            color: var(--text-primary); font-family: 'Inter', sans-serif;
+            font-size: 15px; font-weight: 500; cursor: pointer;
+            transition: all 0.3s ease; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+        .hero-metrics {
+            display: flex; gap: 40px; margin-top: 56px;
+        }
+        .metric { text-align: center; }
+        .metric-val { font-size: 24px; font-weight: 700; color: var(--accent); }
+        .metric-label {
+            font-size: 12px; color: var(--text-muted);
+            margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section { position: relative; z-index: 1; padding: 90px 20px; }
+        .container { max-width: 1080px; margin: 0 auto; }
+
+        .section-head { text-align: center; margin-bottom: 56px; }
+        .section-label {
+            display: inline-block; padding: 4px 12px;
+            border: 1px solid rgba(232, 106, 46, 0.2);
+            border-radius: 4px; font-size: 11px; font-weight: 600;
+            color: var(--accent); text-transform: uppercase;
+            letter-spacing: 1.2px; margin-bottom: 14px;
+        }
+        .section-title {
+            font-size: clamp(24px, 3.5vw, 38px);
+            font-weight: 700; letter-spacing: -0.8px; margin-bottom: 12px;
+        }
+        .section-sub {
+            font-size: 15px; color: var(--text-secondary);
+            max-width: 480px; margin: 0 auto; line-height: 1.6;
+        }
+
+        /* Features */
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+        .feat {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 28px 24px; transition: all 0.35s ease;
+        }
+        .feat:hover {
+            border-color: rgba(232, 106, 46, 0.15);
+            transform: translateY(-3px); box-shadow: var(--shadow-card);
+        }
+        .feat-icon {
+            width: 44px; height: 44px;
+            background: rgba(232, 106, 46, 0.07);
+            border-radius: 10px; display: flex;
+            align-items: center; justify-content: center;
+            margin-bottom: 16px; color: var(--accent);
+        }
+        .feat h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+        .feat p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+        /* Download */
+        .dl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+
+        .dl-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 32px 24px; text-align: center;
+            transition: all 0.35s ease;
+        }
+        .dl-card:hover {
+            border-color: rgba(232, 106, 46, 0.15);
+            transform: translateY(-4px); box-shadow: var(--shadow-card);
+        }
+        .dl-icon {
+            width: 64px; height: 64px; margin: 0 auto 20px;
+            background: rgba(232, 106, 46, 0.06);
+            border-radius: 16px; display: flex;
+            align-items: center; justify-content: center; color: var(--accent);
+        }
+        .dl-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .dl-card .dl-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+
+        .btn-dl {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; width: 100%; padding: 12px 20px;
+            background: var(--accent); border: none; border-radius: 10px;
+            color: #fff; font-family: 'Inter', sans-serif;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; text-decoration: none;
+        }
+        .btn-dl:hover { opacity: 0.88; }
+
+        .btn-dl-outline {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; width: 100%; padding: 12px 20px;
+            background: transparent; border: 1.5px solid var(--accent);
+            border-radius: 10px; color: var(--accent);
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; text-decoration: none;
+        }
+        .btn-dl-outline:hover { background: rgba(232, 106, 46, 0.08); }
+
+        .dl-note { font-size: 11px; color: var(--text-muted); margin-top: 10px; }
+
+        /* iOS steps */
+        .ios-steps { text-align: left; margin-top: 18px; }
+        .step {
+            display: flex; gap: 12px; padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .step:last-child { border-bottom: none; }
+        .step-num {
+            min-width: 24px; height: 24px;
+            background: var(--accent); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 1px;
+        }
+        .step-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .step-text a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .step-text a:hover { text-decoration: underline; }
+
+        /* Donate */
+        .donate-list { max-width: 460px; margin: 0 auto; }
+
+        .donate-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; background: var(--bg-card);
+            border: 1px solid var(--border-color); border-radius: 12px;
+            margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease;
+            text-decoration: none; color: var(--text-primary);
+        }
+        .donate-item:hover { border-color: rgba(232, 106, 46, 0.2); transform: translateX(3px); }
+
+        .donate-item-icon {
+            width: 42px; height: 42px;
+            background: rgba(232, 106, 46, 0.06);
+            border-radius: 10px; display: flex;
+            align-items: center; justify-content: center;
+            flex-shrink: 0; color: var(--accent);
+        }
+        .donate-item-info { flex: 1; min-width: 0; }
+        .donate-item-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .donate-item-desc { font-size: 11px; color: var(--text-muted); word-break: break-all; }
+        .donate-item-action { color: var(--text-muted); transition: all 0.3s ease; }
+        .donate-item:hover .donate-item-action { color: var(--accent); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 10000; display: none;
+            align-items: center; justify-content: center;
+            padding: 20px; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+
+        .modal {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 18px; padding: 32px; max-width: 440px; width: 100%;
+            position: relative; transform: scale(0.95);
+            transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-overlay.active .modal { transform: scale(1); }
+
+        .modal-x {
+            position: absolute; top: 14px; right: 14px;
+            width: 32px; height: 32px;
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 8px; display: flex;
+            align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted); transition: all 0.3s ease;
+        }
+        .modal-x:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .modal h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .modal h2 .accent-text { color: var(--accent); }
+        .modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 28px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--bg-card); border: 1px solid var(--accent);
+            color: var(--text-primary); padding: 10px 22px;
+            border-radius: 10px; font-size: 13px; font-weight: 500;
+            z-index: 20000; transition: transform 0.35s ease;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Footer */
+        .footer {
+            position: relative; z-index: 1;
+            padding: 32px 20px; border-top: 1px solid var(--border-color);
+        }
+        .footer-inner {
+            max-width: 1080px; margin: 0 auto;
+            display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 16px;
+        }
+        .footer-left { display: flex; align-items: center; gap: 8px; }
+        .footer-left img { height: 24px; width: auto; object-fit: contain; }
+        .footer-links { display: flex; gap: 20px; }
+        .footer-links a {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 13px; transition: color 0.3s ease;
+        }
+        .footer-links a:hover { color: var(--accent); }
+        .footer-copy {
+            font-size: 12px; color: var(--text-muted);
+            width: 100%; text-align: center; margin-top: 12px;
+        }
+
+        /* Reveal */
+        .reveal {
+            opacity: 0; transform: translateY(24px);
+            transition: all 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .features { grid-template-columns: repeat(2, 1fr); }
+            .dl-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+        }
+        @media (max-width: 640px) {
+            .navbar { padding: 0 16px; }
+            .navbar-logo img { height: 32px; }
+            .btn-nav.desktop-only { display: none; }
+            .features { grid-template-columns: 1fr; }
+            .hero-buttons {
+                flex-direction: column; width: 100%; padding: 0 20px;
+            }
+            .btn-main, .btn-ghost { width: 100%; justify-content: center; }
+            .hero-metrics { gap: 20px; }
+            .metric-val { font-size: 20px; }
+            .footer-inner { justify-content: center; text-align: center; }
+            .footer-links { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="bg-gradient"></div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+        <symbol id="i-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+        <symbol id="i-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+        <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></symbol>
+        <symbol id="i-smartphone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></symbol>
+        <symbol id="i-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+        <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+        <symbol id="i-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+        <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20"/><path d="M10 3l-4 6 6 13 6-13-4-6"/></symbol>
+        <symbol id="i-dollar" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></symbol>
+        <symbol id="i-bot" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></symbol>
+    </svg>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="#" class="navbar-logo">
+            <img src="./logo.png" alt="Lume">
+        </a>
+        <div class="navbar-right">
+            <div class="theme-btn" onclick="toggleTheme()" title="Сменить тему">
+                <svg class="icon" id="themeIconSvg"><use href="#i-moon"/></svg>
+            </div>
+            <button class="btn-nav desktop-only" onclick="openDonateModal()">
+                <svg class="icon icon-sm"><use href="#i-heart"/></svg>
+                Поддержать
+            </button>
+            <button class="btn-nav mobile-donate" onclick="openDonateModal()" id="mobileDonate">
+                <svg class="icon icon-sm"><use href="#i-heart"/></svg>
+            </button>
+        </div>
+    </nav>
+
+    <style>
+        .mobile-donate { display: none; }
+        @media (max-width: 640px) {
+            .mobile-donate { display: flex; }
+        }
+    </style>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-tag">
+            <div class="status-dot"></div>
+            Доступно для всех платформ
+        </div>
+        <h1>Общайся свободно<br>с <span class="accent-text">Lume</span></h1>
+        <p class="hero-desc">
+            Быстрый, безопасный и минималистичный мессенджер.
+            Скачайте бесплатно на любое устройство.
+        </p>
+        <div class="hero-buttons">
+            <a href="#download" class="btn-main">
+                <svg class="icon icon-sm"><use href="#i-download"/></svg>
+                Скачать
+            </a>
+            <a href="#features" class="btn-ghost">
+                Подробнее
+                <svg class="icon icon-sm"><use href="#i-chevron-down"/></svg>
+            </a>
+        </div>
+        <div class="hero-metrics">
+            <div class="metric">
+                <div class="metric-val">100%</div>
+                <div class="metric-label">Бесплатно</div>
+            </div>
+            <div class="metric">
+                <div class="metric-val">3</div>
+                <div class="metric-label">Платформы</div>
+            </div>
+            <div class="metric">
+                <div class="metric-val">24/7</div>
+                <div class="metric-label">Онлайн</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-head reveal">
+                <div class="section-label">Возможности</div>
+                <h2 class="section-title">Почему Lume?</h2>
+                <p class="section-sub">Мессенджер без лишнего — скорость, безопасность, удобство.</p>
+            </div>
+            <div class="features">
+                <div class="feat reveal">
+                    <div class="feat-icon"><svg class="icon icon-lg"><use href="#i-shield"/></svg></div>
+                    <h3>Защита данных</h3>
+                    <p>Сквозное шифрование. Ваши сообщения видите только вы и собеседник.</p>
+                </div>
+                <div class="feat reveal">
+                    <div class="feat-icon"><svg class="icon icon-lg"><use href="#i-zap"/></svg></div>
+                    <h3>Быстрая доставка</h3>
+                    <p>Оптимизированная архитектура для мгновенной отправки сообщений.</p>
+                </div>
+                <div class="feat reveal">
+                    <div class="feat-icon"><svg class="icon icon-lg"><use href="#i-layout"/></svg></div>
+                    <h3>Чистый интерфейс</h3>
+                    <p>Продуманный минималистичный дизайн без визуального мусора.</p>
+                </div>
+                <div class="feat reveal">
+                    <div class="feat-icon"><svg class="icon icon-lg"><use href="#i-smartphone"/></svg></div>
+                    <h3>Все платформы</h3>
+                    <p>Windows, Android и iOS. Один аккаунт — все устройства.</p>
+                </div>
+                <div class="feat reveal">
+                    <div class="feat-icon"><svg class="icon icon-lg"><use href="#i-globe"/></svg></div>
+                    <h3>Без ограничений</h3>
+                    <p>Отправляйте файлы, фото и видео без лимитов.</p>
+                </div>
+                <div class="feat reveal">
+                    <div class="feat-icon"><svg class="icon icon-lg"><use href="#i-code"/></svg></div>
+                    <h3>Открытый проект</h3>
+                    <p>Lume развивается сообществом. Поддержите, если нравится идея.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download -->
+    <section class="section" id="download">
+        <div class="container">
+            <div class="section-head reveal">
+                <div class="section-label">Загрузка</div>
+                <h2 class="section-title">Скачайте Lume</h2>
+                <p class="section-sub">Выберите платформу и установите за пару минут.</p>
+            </div>
+            <div class="dl-grid">
+                <div class="dl-card reveal">
+                    <div class="dl-icon"><svg class="icon icon-xl"><use href="#i-monitor"/></svg></div>
+                    <h3>Windows</h3>
+                    <p class="dl-sub">Windows 10 / 11, 64-bit</p>
+                    <a href="./files/LumeSetup.exe" download class="btn-dl">
+                        <svg class="icon icon-sm"><use href="#i-download"/></svg>
+                        Скачать .exe
+                    </a>
+                    <p class="dl-note">LumeSetup.exe</p>
+                </div>
+                <div class="dl-card reveal">
+                    <div class="dl-icon"><svg class="icon icon-xl"><use href="#i-smartphone"/></svg></div>
+                    <h3>Android</h3>
+                    <p class="dl-sub">Android 8.0 и выше</p>
+                    <a href="./files/Lume.apk" download class="btn-dl">
+                        <svg class="icon icon-sm"><use href="#i-download"/></svg>
+                        Скачать .apk
+                    </a>
+                    <p class="dl-note">Lume.apk</p>
+                </div>
+                <div class="dl-card reveal">
+                    <div class="dl-icon"><svg class="icon icon-xl"><use href="#i-smartphone"/></svg></div>
+                    <h3>iPhone / iPad</h3>
+                    <p class="dl-sub">iOS 15+ — веб-приложение</p>
+                    <a href="https://lume-8c8a0.firebaseapp.com/" target="_blank" class="btn-dl-outline">
+                        <svg class="icon icon-sm"><use href="#i-globe"/></svg>
+                        Открыть Lume
+                    </a>
+                    <div class="ios-steps">
+                        <div class="step">
+                            <div class="step-num">1</div>
+                            <div class="step-text">Откройте <a href="https://lume-8c8a0.firebaseapp.com/" target="_blank">Lume</a> через Safari</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">2</div>
+                            <div class="step-text">Нажмите кнопку «Поделиться» внизу экрана</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">3</div>
+                            <div class="step-text">Потяните всплывающее меню вверх</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">4</div>
+                            <div class="step-text">Нажмите «Добавить на экран "Домой"»</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">5</div>
+                            <div class="step-text">Задайте название, в iOS 26 включите «Открыть как веб-приложение»</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">6</div>
+                            <div class="step-text">Нажмите «Добавить» в правом верхнем углу</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donate -->
+    <section class="section" id="donate">
+        <div class="container">
+            <div class="section-head reveal">
+                <div class="section-label">Поддержка</div>
+                <h2 class="section-title">Поддержите проект</h2>
+                <p class="section-sub">Lume — бесплатный проект. Ваши пожертвования помогают развиваться.</p>
+            </div>
+            <div class="donate-list reveal">
+                <a href="https://t.me/send?start=IVow3KWIrsso" target="_blank" class="donate-item">
+                    <div class="donate-item-icon"><svg class="icon"><use href="#i-bot"/></svg></div>
+                    <div class="donate-item-info">
+                        <div class="donate-item-title">Через CryptoBot</div>
+                        <div class="donate-item-desc">Быстрый перевод через Telegram</div>
+                    </div>
+                    <div class="donate-item-action"><svg class="icon icon-sm"><use href="#i-arrow-right"/></svg></div>
+                </a>
+                <div class="donate-item" onclick="copyAddr('UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI','USDT/TON')">
+                    <div class="donate-item-icon"><svg class="icon"><use href="#i-dollar"/></svg></div>
+                    <div class="donate-item-info">
+                        <div class="donate-item-title">USDT (сеть TON)</div>
+                        <div class="donate-item-desc">UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI</div>
+                    </div>
+                    <div class="donate-item-action"><svg class="icon icon-sm"><use href="#i-copy"/></svg></div>
+                </div>
+                <div class="donate-item" onclick="copyAddr('UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI','TON')">
+                    <div class="donate-item-icon"><svg class="icon"><use href="#i-diamond"/></svg></div>
+                    <div class="donate-item-info">
+                        <div class="donate-item-title">TON (сеть TON)</div>
+                        <div class="donate-item-desc">UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI</div>
+                    </div>
+                    <div class="donate-item-action"><svg class="icon icon-sm"><use href="#i-copy"/></svg></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">
+                <img src="./logo.png" alt="Lume">
+            </div>
+            <div class="footer-links">
+                <a href="#features">Возможности</a>
+                <a href="#download">Скачать</a>
+                <a href="#donate">Поддержать</a>
+                <a href="https://lume-8c8a0.firebaseapp.com/" target="_blank">Web-версия</a>
+            </div>
+            <div class="footer-copy">© <span id="yr"></span> Lume Messenger. Все права защищены.</div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="donateModal">
+        <div class="modal">
+            <div class="modal-x" onclick="closeModal()">
+                <svg class="icon icon-sm"><use href="#i-x"/></svg>
+            </div>
+            <h2>Поддержите <span class="accent-text">Lume</span></h2>
+            <p class="modal-sub">Выберите удобный способ</p>
+            <a href="https://t.me/send?start=IVow3KWIrsso" target="_blank" class="donate-item">
+                <div class="donate-item-icon"><svg class="icon"><use href="#i-bot"/></svg></div>
+                <div class="donate-item-info">
+                    <div class="donate-item-title">CryptoBot</div>
+                    <div class="donate-item-desc">Перевод через Telegram</div>
+                </div>
+                <div class="donate-item-action"><svg class="icon icon-sm"><use href="#i-arrow-right"/></svg></div>
+            </a>
+            <div class="donate-item" onclick="copyAddr('UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI','USDT/TON')">
+                <div class="donate-item-icon"><svg class="icon"><use href="#i-dollar"/></svg></div>
+                <div class="donate-item-info">
+                    <div class="donate-item-title">USDT (TON)</div>
+                    <div class="donate-item-desc" style="font-size:10px">UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI</div>
+                </div>
+                <div class="donate-item-action"><svg class="icon icon-sm"><use href="#i-copy"/></svg></div>
+            </div>
+            <div class="donate-item" onclick="copyAddr('UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI','TON')">
+                <div class="donate-item-icon"><svg class="icon"><use href="#i-diamond"/></svg></div>
+                <div class="donate-item-info">
+                    <div class="donate-item-title">TON (TON)</div>
+                    <div class="donate-item-desc" style="font-size:10px">UQBFXq_AXrRLgGRBjF_cwxMGFTCBRTOoXX1njxJ9V8AC1bkI</div>
+                </div>
+                <div class="donate-item-action"><svg class="icon icon-sm"><use href="#i-copy"/></svg></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        document.getElementById('yr').textContent = new Date().getFullYear();
+
+        function toggleTheme(){
+            const h = document.documentElement;
+            const svg = document.getElementById('themeIconSvg');
+            if(h.dataset.theme === 'dark'){
+                h.dataset.theme = 'light';
+                svg.innerHTML = '<use href="#i-sun"/>';
+                localStorage.setItem('lume-t','light');
+            } else {
+                h.dataset.theme = 'dark';
+                svg.innerHTML = '<use href="#i-moon"/>';
+                localStorage.setItem('lume-t','dark');
+            }
+        }
+        (function(){
+            const s = localStorage.getItem('lume-t');
+            if(s){
+                document.documentElement.dataset.theme = s;
+                document.getElementById('themeIconSvg').innerHTML =
+                    s === 'dark' ? '<use href="#i-moon"/>' : '<use href="#i-sun"/>';
+            }
+        })();
+
+        function openDonateModal(){
+            const m = document.getElementById('donateModal');
+            m.style.display = 'flex';
+            requestAnimationFrame(()=> m.classList.add('active'));
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(){
+            const m = document.getElementById('donateModal');
+            m.classList.remove('active');
+            setTimeout(()=> m.style.display = 'none', 300);
+            document.body.style.overflow = '';
+        }
+        document.getElementById('donateModal').addEventListener('click', function(e){
+            if(e.target === this) closeModal();
+        });
+        document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+        function copyAddr(addr, name){
+            navigator.clipboard.writeText(addr).then(()=>{
+                showToast('Адрес ' + name + ' скопирован');
+            }).catch(()=>{
+                const t = document.createElement('textarea');
+                t.value = addr; t.style.cssText='position:fixed;opacity:0';
+                document.body.appendChild(t); t.select();
+                document.execCommand('copy'); document.body.removeChild(t);
+                showToast('Адрес ' + name + ' скопирован');
+            });
+        }
+
+        function showToast(msg){
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(()=> el.classList.remove('show'), 2200);
+        }
+
+        const obs = new IntersectionObserver((entries)=>{
+            entries.forEach((en, i)=>{
+                if(en.isIntersecting){
+                    setTimeout(()=> en.target.classList.add('visible'), i * 60);
+                    obs.unobserve(en.target);
+                }
+            });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+        document.querySelectorAll('a[href^="#"]').forEach(a=>{
+            a.addEventListener('click', function(e){
+                e.preventDefault();
+                const t = document.querySelector(this.getAttribute('href'));
+                if(t) window.scrollTo({ top: t.offsetTop - 72, behavior:'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
